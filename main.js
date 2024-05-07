@@ -1,43 +1,10 @@
 let shop = document.getElementById('shop');
-let shopItemsData = [{
-    id: "va55ivo",
-    name: "casual shirt",
-    price: 1646,
-    desc: "this is a collection of the shirt and pants",
-    img: "1.jpg",
-},
-
-{
-    id: "qa55ivo",
-    name: "   formal jeans",
-    price: 1646,
-    desc: " this is a formal jeans",
-    img: "2.jpg",
-},
-
-{
-    id: "va58ivo",
-    name: "jeans",
-    price: 599,
-    desc: "this is a a collection denim jeans",
-    img: "3.jpg",
-},
-
-{
-    id: "va55hdf",
-    name: "jeans pack of 3",
-    price: 1399,
-    desc: "this is a a collection of pants pack of 3",
-    img: "4.jpg",
-}];
-let basket = [{
-    id: "vafvz",
-    item: 1,
-}];
+let basket = JSON.parse(localStorage.getItem("data")) ||[];
 let generateshop = () => {
     return shop.innerHTML = shopItemsData
        .map((x) => {
             let { id, name, price, desc, img } = x;
+            let search = basket.find((x) => x.id === id) || [];
             return `
         <div class="item">
             <img width="220" src="${x.img}" alt="">
@@ -48,7 +15,9 @@ let generateshop = () => {
                     <h2>Rs ${price}</h2>
                     <div class="buttons">
                         <i onclick="decrement('${id}')" class="bi bi-dash"></i>
-                        <div id="${id}" class="quantity">0</div>
+                        <div id="${id}" class="quantity">
+                        ${search.item === undefined ? 0 : search.item}
+                        </div>
                         <i onclick="increment('${id}')" class="bi bi-plus-lg"></i>
                     </div>
                 </div>
@@ -71,9 +40,11 @@ let increment = (id) => {
     }
     else{
         search.item += 1;
+        
     }
     // console.log(basket);
     update(selectedItem.id);
+    localStorage.setItem("data",JSON.stringify(basket))
 };
 
 let decrement = (id) => {
@@ -82,16 +53,24 @@ let decrement = (id) => {
     // console.log(selectedItem.id);
     if(search.item === 0) 
         return;
+    else if (search.item === 0) return;
     else{
         search.item -= 1;
     }
     // console.log(basket);  
     update(selectedItem.id);
+    basket = basket.filter((x) => x.item !== 0);
+    
+    localStorage.setItem("data",JSON.stringify(basket))
 };
 let update = (id) => {
     let search = basket.find((x) => x.id === id);
-    console.log(search.item);
+    // console.log(search.item);
+    document.getElementById(id).innerHTML = search.item;
+    calculation()
 };
-
-
- 
+ let calculation =()=>{
+    let cartIcon = document.getElementById("cartAmount");
+    cartIcon.innerHTML = basket.map((x) => x.item).reduce((x,y)=>x+y,0);
+ }
+ calculation() 
